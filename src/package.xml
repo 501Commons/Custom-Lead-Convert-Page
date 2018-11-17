@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Custom-Lead-Convert-Page</fullName>
+    <types>
+        <members>ComponentControllerBase</members>
+        <members>DateTimeUtility</members>
+        <members>PageControllerBase</members>
+        <members>TestLeadConvertPage</members>
+        <members>leadConvertController</members>
+        <members>leadConvertCoreComponentController</members>
+        <members>leadConvertTaskDescComponentController</members>
+        <members>leadConvertTaskInfoComponentController</members>
+        <members>leadConvertTaskRemindComponentController</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>leadConvertCoreComponent</members>
+        <members>leadConvertPageHeaderTextComponent</members>
+        <members>leadConvertTaskDescriptionComponent</members>
+        <members>leadConvertTaskInfoComponent</members>
+        <name>ApexComponent</name>
+    </types>
+    <types>
+        <members>leadConvertPage</members>
+        <name>ApexPage</name>
+    </types>
+    <version>42.0</version>
+</Package>

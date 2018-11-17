@@ -1,0 +1,7 @@
+project:
+    name: Custom-Lead-Convert-Page
+    package:
+        name:  Custom-Lead-Convert-Page
+        api_version: '42.0'
+
+

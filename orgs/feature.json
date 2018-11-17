@@ -1,0 +1,10 @@
+{
+  "orgName": "Custom-Lead-Convert-Page - Feature Test Org",
+  "edition": "Developer",
+  "orgPreferences" : {
+    "enabled": [
+      "S1DesktopEnabled",
+      "ChatterEnabled"
+    ]
+  }
+}
