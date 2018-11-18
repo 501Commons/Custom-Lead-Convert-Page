@@ -30,15 +30,15 @@
     <apex:pageBlockSection id="pblockconvertLead" title="Convert Lead" collapsible="no" columns="1">
     
         <!-- Leads Record Owner -->
-        <apex:pageBlockSectionItem >
+        <apex:pageBlockSectionItem rendered="false">
             <apex:outputLabel value="Record Owner" for="recordOwner" />
             <apex:inputField value="{!contactId.ownerID}" id="recordOwner" />
         </apex:pageBlockSectionItem>
         
         <!-- Checkbox indicating whether to send an email to the owner -->    
-        <apex:pageBlockSectionItem >
+        <apex:pageBlockSectionItem rendered="false">
             <apex:outputLabel value="Send Email to the Owner" for="sendOwnerEmail" />
-            <apex:inputCheckbox value="{!sendOwnerEmail}" id="sendOwnerEmail" />
+            <apex:inputCheckbox value="{!sendOwnerEmail}" id="sendOwnerEmail"  selected="false"/>
         </apex:pageBlockSectionItem>
         
              
@@ -80,7 +80,7 @@
         </apex:pageBlockSectionItem>
         
         <!-- Opportunity section -->
-        <apex:pageBlockSectionItem id="oppSection" >
+        <apex:pageBlockSectionItem id="oppSection" rendered="false">
             
             <apex:outputPanel id="oppPanel" >
                 <apex:outputLabel value="Opportunity Name" for="opportunityName" />
@@ -107,7 +107,7 @@
                 <apex:outputPanel layout="block" />
                 
                 <!-- Checkbox indicating whether to create an Opportunity -->
-                <apex:inputCheckbox value="{!doNotCreateOppty}" id="doNotCreateOppty">
+                <apex:inputCheckbox value="{!doNotCreateOppty}" id="doNotCreateOppty" selected="true">
                     <apex:actionSupport event="onchange" 
                         
                         rerender="opportunityPanel"

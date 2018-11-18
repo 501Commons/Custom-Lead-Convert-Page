@@ -56,7 +56,9 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
         
         // set the selected Account to NONE by default
         selectedAccount = 'NONE';
-         
+
+        doNotCreateOppty = true;
+        sendOwnerEmail = false;
     }
     
     // Find an Account using SOSL based on the given company name
@@ -127,7 +129,8 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
             opportunityId.Name = company + '-';
         }
         
-        else system.debug('leadConvert = null');
+        else
+            system.debug('leadConvert = null');
             
     }
     
