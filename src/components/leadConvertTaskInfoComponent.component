@@ -83,7 +83,7 @@
                 
                 <!-- Task Reminder Date (only shown if the Reminder is unchecked) --> 
                 <apex:inputText rendered="{!NOT(remCon.taskId.IsReminderSet)}" 
-                disabled="true" size="11" value="{!remCon.disabledActivityDate}" />
+                disabled="true" size="11" value="{!remCon.DisabledActivityDate}" />
                 
 				<!-- Task Reminder Time -->                
                 <apex:selectList disabled="{!NOT(remCon.taskId.IsReminderSet)}"  id="ReminderTimeList" size="1" value="{!remCon.reminderTime}" multiselect="false">

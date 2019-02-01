@@ -84,7 +84,7 @@ public with sharing class leadConvertTaskRemindComponentController extends Compo
     }
     
     //this will return the reminder date as a string in the desired format of 'M/d/yyyy'
-    public string disabledActivityDate {
+    public string DisabledActivityDate {
         get {
             return (taskId.ActivityDate != null) ? 
                 (DateTime.newInstance(taskId.ActivityDate, Time.newInstance(0,0,0,0)).format('M/d/yyyy')).trim()

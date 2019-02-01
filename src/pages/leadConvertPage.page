@@ -1,6 +1,11 @@
 <!-- This is our page component tag -->
 <!-- We are using the Standard Controller for Lead and a Controller Extension called 'leadConvertController' -->
 
+<!-- 
+    To debug open the page and pass in the LeadId
+    https://[InstanceURL]/apex/leadConvertPage?Id=[leadId]
+-->
+
 <apex:page standardController="Lead" extensions="leadConvertController">
 
 <!-- Page section header -->

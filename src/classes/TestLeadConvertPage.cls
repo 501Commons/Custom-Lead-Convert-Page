@@ -4,9 +4,17 @@ private class TestLeadConvertPage {
     static testMethod void myUnitTest() {
         Account newAccount = new Account(
           name = 'Test Account'
-      );
+        );
         Insert newAccount;
-        
+
+        Contact newContact = new Contact(
+          LastName = 'Test Lead',
+          FirstName = 'First',
+          Email = 'email@domain.com',
+          AccountId = newAccount.Id
+        );
+        Insert newContact;
+
         Lead newLead = new Lead(
                         Company = 'Test Account', LastName= 'Test Lead',
                         LeadSource = 'Web',  
@@ -47,6 +55,7 @@ private class TestLeadConvertPage {
         leadController.myTaskComponentController.taskID.Priority = 'High';
         leadController.myTaskComponentController.taskID.Status = 'Not Started';
         leadController.myComponentController.selectedAccount = newAccount.Id;
+        leadController.myComponentController.selectedContact = newContact.Id;
         leadController.myComponentController.leadConvert = newLead;
         
         
@@ -77,13 +86,16 @@ private class TestLeadConvertPage {
         //see if the new account was created
         Contact [] checkContact = [SELECT Id FROM Contact WHERE Name ='Test Lead' ];
         system.debug(checkContact);
-        system.assertEquals(1, checkContact.size(), 'There was a problem converting lead to a contact');
+
+        // Make sure new contact new created
+        system.assertEquals(0, checkContact.size(), 'There was a problem converting lead to a contact - should have used existing contact');
         
         //
-        string reminderDate = leadController.myTaskComponentController.remCon.disabledActivityDate;
+        string reminderDate = leadController.myTaskComponentController.remCon.DisabledActivityDate;
         leadController.myComponentController.accountChanged();
         
         leadController.myComponentController.selectedAccount = 'NEW';
+        leadController.myComponentController.selectedContact = 'NEW';
         
         leadController.myComponentController.accountChanged();
         
@@ -104,6 +116,7 @@ private class TestLeadConvertPage {
          }
          
          leadController.myComponentController.selectedAccount = 'NONE';
+         leadController.myComponentController.selectedContact = 'NONE';
          leadController.myDescriptionComponentController.sendNotificationEmail = false;
          
          //test the situation where there is a due date but no subject

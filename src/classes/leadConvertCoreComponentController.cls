@@ -3,7 +3,7 @@
 */
 public with sharing class leadConvertCoreComponentController extends ComponentControllerBase {
     
-    // prefix for the label of existing accounts
+    // prefix for the label of existing value
     private final string EXISTING = 'Attach to existing: ';
     
     // checkbox on the component indicating if there will be an email sent to the owner 
@@ -25,20 +25,33 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
         }
         set;
     }
-    
-    //THis is set by the <apex:attribute> and is the lead to convert
+
+    // This will hold the contact lookup value
+    public CampaignMember memberId {
+        get {
+            if (memberId == null) {
+                memberId = new CampaignMember();
+            }
+            return memberId;
+        }
+        set;
+    }
+
+    //This is set by the <apex:attribute> and is the lead to convert
     public Lead leadConvert {
         get; 
         set {
-            //the first time this is set, the select list of Accounts will be populated 
             if (accounts == null) {
                 system.debug('leadConvert set to ' + value);
                 
                 leadConvert = value;
                 
-                //populate the Account dropdown based on the lead
                 populateAccounts(); 
-                
+            }
+
+            if (contacts == null) {
+
+                populateContacts(); 
             }
         }
     }
@@ -48,14 +61,29 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
     
     // the selected account in the select list of accounts
     public string selectedAccount {get; set;}
+
+    // the list of contacts in the select list
+    public List<SelectOption> contacts {get; set;}
     
+    // the selected contact in the select list of contacts
+    public string selectedContact {get; set;}
+
     //Constructor
     public leadConvertCoreComponentController() {
         // create a new Opportunity which will hold the Opportuniy name set by the user
         opportunityId = new Opportunity();
         
-        // set the selected Account to NONE by default
-        selectedAccount = 'NONE';
+        List<npe01__Contacts_And_Orgs_Settings__c> settings = [SELECT npe01__Account_Processor__c FROM npe01__Contacts_And_Orgs_Settings__c];
+        if (!settings.isEmpty() && settings[0].npe01__Account_Processor__c == 'Individual') {
+            selectedAccount = 'Individual';
+        }
+        else {
+            // set the selected Account to NONE by default
+            selectedAccount = 'NONE';
+        }
+
+        // set the selected Contact to NONE by default
+        selectedContact = 'NONE';
 
         doNotCreateOppty = true;
         sendOwnerEmail = false;
@@ -93,6 +121,10 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
     //populate the list of Accounts in the dropdown
     private void populateAccounts() {
         
+        if (selectedAccount == 'Individual') {
+            return;
+        }
+
         if (leadConvert != null) {
                 
             string company = leadConvert.Company;
@@ -136,11 +168,14 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
     
     // when the selected account in the select list of accounts changes this method is called 
     public PageReference accountChanged() {
-       
+
+        if (selectedAccount == 'Individual') {
+            return null;
+        }
+
         // if either the NONE option or the Create New Account option is selected, the Opportuniy Name is set to the lead's company
         if (selectedAccount == 'NEW' || selectedAccount == 'NONE') {
             opportunityId.Name = leadConvert.Company  + '-';
-            
         }
 
         else {
@@ -157,8 +192,13 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
         return null;
     }
     
-    //this gets called when an existing accout gets looked up via the lookup magnifying glass
+    //this gets called when an existing account gets looked up via the lookup magnifying glass
     public PageReference accountLookedUp() {
+
+        if (selectedAccount == 'Individual') {
+            return null;
+        }
+
         system.debug('!!! Account looked up --> ' + contactId.AccountId );
         
         //find the Id and Nmae of the Account that was looked up        
@@ -182,7 +222,125 @@ public with sharing class leadConvertCoreComponentController extends ComponentCo
         
         return null;
     }
+
+    // Find Contacts using SOSL based on the given lead email
+    private Contact [] findContact (string email) {
+        
+        //perform the SOSL query
+        List<List<SObject>> searchList = [
+            FIND :email 
+            IN EMAIL FIELDS 
+            RETURNING 
+            Contact(
+                Id, 
+                Name,
+                RecordType.DeveloperName,
+                AccountId
+            )
+        ];
+        
+        List <Contact> contactsFound = new List<Contact>();
+        
+        for (List <sobject> sObjs : searchList) {
+            
+            for (sObject s : sObjs) {
+                contactsFound.add((Contact) s);
+            }   
+        }
+        
+        return contactsFound;
+    }
     
+    // when the selected contact in the select list of contacts changes this method is called 
+    public PageReference contactChanged() {
+
+        // if either the NONE option or the Create New Contact option is selected
+        if (selectedContact == 'NEW' || selectedContact == 'NONE') {
+            return null;
+        }
+
+        else {
+
+            // otherwise find the contact's Id that was selected
+            Contact [] c = [
+                SELECT Id, AccountId 
+                FROM Contact WHERE Id = :selectedContact];
+            
+            if (c.size() > 0) {
+                contactId.Id = c[0].Id;
+                contactId.AccountId = c[0].AccountId;
+            }
+
+            system.debug('***** leadConvertCoreComponentController::contactChanged - contactId.AccountId c: ' + string.valueOf(c));
+        }
+        
+        return null;
+    }
+
+    //populate the list of Contacts in the dropdown
+    private void populateContacts() {
+        
+        if (leadConvert != null) {
+                
+            // find any contacts that match the SOSL query in the findContact() method  
+            Contact [] contactsFound = findContact(leadConvert.Email + '*');
+            
+            contacts = new List<selectOption>();
+            
+            contacts.add(new SelectOption('NONE', '-None-'));
+
+            if (contactsFound != null && contactsFound.size() > 0) {
+                
+                if (selectedAccount != 'Individual') {
+                    contacts.add(new SelectOption('NEW', 'Create New Contact: ' + leadConvert.Name ));
+                }
+                
+                // for each contact found, add an option to attach to the existing contact
+                for (Contact a : contactsFound) {
+                    
+                    contacts.add(new SelectOption(a.Id, EXISTING + a.Name + ' (' + a.RecordType.DeveloperName + ')'));
+                }
+                
+            }
+            
+            else {
+                
+                if (selectedAccount != 'Individual') {
+                    // if no contacts matched then simply add a Create New Contact option
+                    contacts.add(new SelectOption('NEW', 'Create New Contact: ' + leadConvert.Name ));
+                }
+                
+                system.debug('no contact matches on Email ' + leadConvert.Email);
+            }
+        }
+        
+        else
+            system.debug('leadConvert = null');
+            
+    }
+    
+    //this gets called when an existing contact gets looked up via the lookup magnifying glass
+    public PageReference contactLookedUp() {
+        system.debug('!!! Contact looked up --> ' + memberId.ContactId );
+        
+        Contact [] a = [
+            SELECT Id, Name, AccountId, RecordType.DeveloperName 
+            FROM Contact WHERE Id = :memberId.ContactId];
+        
+        if (a.size() > 0) {
+            
+            // add the locked up contact to the slect list
+            contacts.add(new SelectOption(a[0].Id, EXISTING + a[0].Name + ' (' + a[0].RecordType.DeveloperName + ')'));
+
+            contactID.AccountId = a[0].AccountId;
+            selectedContact = a[0].Id;
+            
+            system.debug('contacts --> ' + contacts);
+        }
+        
+        return null;
+    }
+
     // set up the Lead Status pick list
     public List<SelectOption> LeadStatusOption {
         

@@ -13,7 +13,18 @@ public with sharing class leadConvertController extends PageControllerBase {
         //get the ID to query for the Lead fields
         Id leadId = stdController.getId();
         
-        leadToConvert = [SELECT Id, Status, OwnerId, Name, Company FROM Lead WHERE Id = :leadId];
+        // Get list of fields from fieldset
+        List<String> listStrFields = new List<String>();
+        for (Schema.FieldSetMember f : SObjectType.Lead.FieldSets.LeadConvertShowFields.getFields()) {
+            listStrFields.add(f.getFieldPath());
+        }
+        
+        string strSoql = 
+            'select Id, Email, LastName, Status, OwnerId, Name, Company,' + String.join(listStrFields, ',');
+
+        strSoql += ' from Lead WHERE Id = :leadId';
+
+        leadToConvert = Database.Query(strSoql); 
     }
 
   /*
@@ -98,6 +109,8 @@ public with sharing class leadConvertController extends PageControllerBase {
         //set lead ID
         leadConvert.setLeadId(leadToConvert.Id);    
         
+        system.debug('***** leadConvertController::convertLead - selectedAccount: ' + myComponentController.selectedAccount + ' AccountId: ' + myComponentController.contactId.AccountId);
+
         //if the main lead convert component is not set then return
         if (myComponentController == NULL) return null;
         
@@ -108,12 +121,24 @@ public with sharing class leadConvertController extends PageControllerBase {
             return null;
             
         }
-        
-        // otherwise set the account id
+        else if (myComponentController.selectedAccount == 'Individual') {
+            leadConvert.setAccountId(myComponentController.contactId.AccountId);
+        }
         else if (myComponentController != NULL && myComponentController.selectedAccount != 'NEW') {
             leadConvert.setAccountId(myComponentController.selectedAccount);
         }
-        
+
+        //if the Contact is not set, then show an error
+        if (myComponentController.selectedContact == 'NONE')
+        {
+            PrintError('Please select a Contact.');
+            return null;
+            
+        }
+        else if (myComponentController != NULL && myComponentController.selectedContact != 'NEW') {
+            leadConvert.setContactId(myComponentController.selectedContact);
+        }
+
         //set the lead convert status
         leadConvert.setConvertedStatus(myComponentController.leadConvert.Status);
         
