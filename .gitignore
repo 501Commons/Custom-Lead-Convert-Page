@@ -48,3 +48,4 @@ Temporary Items
 
 # sfdx
 *.sfdx
+.sfdx/tools/apex.db
