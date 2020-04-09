@@ -163,6 +163,13 @@ public with sharing class leadConvertController extends PageControllerBase {
         // if the lead converting was a success then create a task
         if (leadConvertResult.success)
         {
+
+            // Check to Map Custom Fields based on Record Type
+            //  NOTE: Don't overwrite on the contact/facility unless the value is blank (otherwise keep existing value)
+            //  Lead.Payee_Number__c for Contact map to SSPS Number for Facility map to SSPS Number Matching
+            //  Lead.ii_STARS_Id__c for Contact map to Stars Id for Facility map to Stars Id Matching
+            //  Lead.custom_Provider_Number__c map to ??
+
           // make sure that the task information component is being used and check to see if the user has filled out the Subject field 
             if(myTaskComponentController != NULL 
                 && myDescriptionComponentController != NULL 
