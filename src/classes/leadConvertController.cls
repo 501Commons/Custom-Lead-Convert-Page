@@ -113,13 +113,22 @@ public with sharing class leadConvertController extends PageControllerBase {
 
         //if the main lead convert component is not set then return
         if (myComponentController == NULL) return null;
+
+        if (myComponentController != NULL && !String.isBlank(myComponentController.selectedAccount) &&
+            myComponentController.selectedAccount != 'NONE' && myComponentController.selectedAccount != 'NEW') {
+
+            leadConvert.setAccountId(myComponentController.selectedAccount);
+        }
+        else {
+            // Default to the Contact Account
+            leadConvert.setAccountId(myComponentController.contactId.AccountId);
+        }
         
         //if the Account is not set, then show an error
-        if (myComponentController.selectedAccount == 'NONE')
+/*        if (myComponentController.selectedAccount == 'NONE')
         {
             PrintError('Please select an Account.');
             return null;
-            
         }
         else if (myComponentController.selectedAccount == 'Individual') {
             leadConvert.setAccountId(myComponentController.contactId.AccountId);
@@ -127,6 +136,7 @@ public with sharing class leadConvertController extends PageControllerBase {
         else if (myComponentController != NULL && myComponentController.selectedAccount != 'NEW') {
             leadConvert.setAccountId(myComponentController.selectedAccount);
         }
+*/
 
         //if the Contact is not set, then show an error
         if (myComponentController.selectedContact == 'NONE')
@@ -138,6 +148,9 @@ public with sharing class leadConvertController extends PageControllerBase {
         else if (myComponentController != NULL && myComponentController.selectedContact != 'NEW') {
             leadConvert.setContactId(myComponentController.selectedContact);
         }
+
+        // Default to Closed Status
+        myComponentController.leadConvert.Status = 'Closed - Converted';
 
         //set the lead convert status
         leadConvert.setConvertedStatus(myComponentController.leadConvert.Status);
@@ -239,8 +252,8 @@ public with sharing class leadConvertController extends PageControllerBase {
                 }
             }
             
-            // redirect the user to the newly created Account
-            PageReference pageRef = new PageReference('/' + leadConvertResult.getAccountId());
+            // redirect the user to the newly created Contact
+            PageReference pageRef = new PageReference('/' + leadConvertResult.getContactId());
             
             pageRef.setRedirect(true);
             

@@ -79,7 +79,8 @@
             
         </apex:pageBlockSectionItem>
             
-        <apex:pageBlockSectionItem id="convertLeadAccountBlockSectionItem" rendered="{!selectedAccount <> 'Individual'}">
+        <!--<apex:pageBlockSectionItem id="convertLeadAccountBlockSectionItem" rendered="{!selectedAccount <> 'Individual'}">-->
+        <apex:pageBlockSectionItem id="convertLeadAccountBlockSectionItem" rendered="false">
             
             <!-- Account Name picklist  -->
             <apex:outputLabel value="Account Name" for="accountList"/>
@@ -157,7 +158,7 @@
         </apex:pageBlockSectionItem>
         
         <!-- Converted Status -->
-        <apex:pageBlockSectionItem >
+        <apex:pageBlockSectionItem rendered="false">
             <apex:outputLabel value="Converted Status" for="leadStatus" />
             <apex:outputPanel styleClass="requiredInput" layout="block">
                 <div class="requiredBlock"></div>
